@@ -1,0 +1,42 @@
+{
+  "name": "deeps",
+  "version": "1.0.0",
+  "description": "Highly performant utilities to manage deeply nested objects. get, set, flatten, diff etc.",
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10"
+  },
+  "keywords": [
+    "deep",
+    "get",
+    "set",
+    "flatten",
+    "diff",
+    "object"
+  ],
+  "scripts": {
+    "test": "istanbul cover --report lcov _mocha",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "benchmark": "node benchmark/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Salakar/deeps.git"
+  },
+  "author": {
+    "name": "Mike Diarmid",
+    "email": "mike.diarmid@gmail.com",
+    "url": "http://github.com/Salakar/"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Salakar/deeps/issues"
+  },
+  "homepage": "https://github.com/Salakar/deeps#readme",
+  "devDependencies": {
+    "benchmark": "^2.1.0",
+    "coveralls": "^2.11.9",
+    "istanbul": "^0.4.4",
+    "mocha": "^2.5.3"
+  }
+}
