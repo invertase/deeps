@@ -18,13 +18,20 @@ var suite = new Benchmark.Suite();
 var get = require('./../').get;
 var set = require('./../').set;
 var flatten = require('./../').flatten;
+var diff = require('./../').diff;
 
 console.log('\r\n');
 require('./print');
 console.log('\r\n');
 
+var objA = { a: 1, c: { d: 1, e: 3, f: { j: 'k' } }, g: 6 };
+var objB = { a: 1, c: { d: 1, e: 6, f: { j: 'm' } }, b: 2, g: '6' };
 
 suite
+  .add('DIFF: deeply nested object', function () {
+    return diff(objA, objB);
+  })
+
   .add('FLATTEN: deeply nested with array', function () {
     return flatten(testy);
   })

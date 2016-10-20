@@ -29,7 +29,7 @@ function diff(objectA, objectB) {
     var aProp = objectA[key];
     var bProp = objectB[key];
 
-    if (aProp !== bProp) {
+    if (aProp !== bProp && !isObject(aProp) && !isObject(bProp)) {
       if (!output) output = {};
       output[key] = bProp;
     } else if (isObject(aProp) && isObject(bProp)) {
@@ -53,21 +53,18 @@ function diff(objectA, objectB) {
  * @returns {*}
  * @private
  */
-function _flattenChild(object, stack, parent, intermediate) {
-  if (!isObject(object)) return {};
-
+function _flattenChild(object, stack, parent) {
   var i = 0;
   var keys = Object.keys(object);
   var len = keys.length;
 
   while (i < len) {
     var key = keys[i++];
-    var escaped = key.replace(/\./g, '\\\.');
     if (isObject(object[key])) {
       var p = parent + '.' + key;
-      if (intermediate) stack[p] = object[key];
-      _flattenChild(object[key], stack, p, intermediate);
+      _flattenChild(object[key], stack, p);
     } else {
+      var escaped = key.indexOf('.') > -1 ? key.replace(/\./g, '\\\.') : key;
       stack[parent + '.' + escaped] = object[key];
     }
   }
@@ -78,11 +75,10 @@ function _flattenChild(object, stack, parent, intermediate) {
 /**
  * Deeply flattens an object into a 1 level deep object.
  * @param object
- * @param intermediate
  * @returns {{}}
  */
-function flatten(object, intermediate) {
-  if (!isObject(object)) return {};
+function flatten(object) {
+  if (!isObject(object)) return null;
 
   var i = 0;
   var stack = {};
@@ -91,10 +87,9 @@ function flatten(object, intermediate) {
 
   while (i < len) {
     var key = keys[i++];
-    var escaped = key.replace(/\./g, '\\\.');
+    var escaped = key.indexOf('.') > -1 ? key.replace(/\./g, '\\\.') : key;
     if (isObject(object[key])) {
-      if (intermediate) stack[escaped] = object[key];
-      _flattenChild(object[key], stack, escaped, intermediate);
+      _flattenChild(object[key], stack, escaped);
     } else {
       stack[escaped] = object[key];
     }
@@ -136,6 +131,7 @@ function get(object, path) {
  * @param initPaths
  */
 function set(object, path, value, initPaths) {
+  if (!isObject(object)) return false;
   var keys = path.split('.');
 
   var i = 0;
@@ -143,43 +139,18 @@ function set(object, path, value, initPaths) {
 
   while (i < len) {
     var key = keys[i++];
-    if (!object) return object;
     if (initPaths && !hasOwnProperty.call(object, key)) object[key] = {};
     object = object[key];
   }
 
-  if (object) object[keys[i]] = value;
-  else return undefined;
-  return value;
+  if (isObject(object)) object[keys[i]] = value;
+  else return false;
+  return true;
 
 }
 
-if (typeof module !== 'undefined') {
-  module.exports.get = get;
-  module.exports.set = set;
-  module.exports.flatten = flatten;
-  module.exports.isObject = isObject;
-} else {
-  // d8 --trace-opt --trace-deopt index.js
-  var i = 0;
-  var testy = {
-    foo: {
-      bar: [
-        {
-          baz: {
-            faz: 'boom',
-          }
-        }
-      ]
-    },
-    fooStr: 'foobar',
-  };
-
-  while (i++ < 10000) {
-    get(testy, 'fooStr');
-    get(testy, 'foo.bar.0.baz.faz');
-    set(testy, 'foogStr.bfb.ss.dfsdf.hfrnbere.ren.erner.erb.rb', '11111', true);
-    set(testy, 'foogaStr.bfb.ss.dfsdf.hfrnbere.ren.erner.erb.rb', '11111');
-    flatten(testy);
-  }
-}
+module.exports.get = get;
+module.exports.set = set;
+module.exports.diff = diff;
+module.exports.flatten = flatten;
+module.exports.isObject = isObject;
