@@ -6,18 +6,31 @@
 [![License](https://img.shields.io/npm/l/deeps.svg)](/LICENSE)
 
 
+High performance utilities for dealing with nested objects.
+
+#### get
+#### set
+#### diff
+#### flatten
+#### merge
+
+### Why?
+
+I've been using these utils a lot in personal projects so made sense to move them into a module. (and I wanted to make them more efficient ;p)
+
 ## Benchmarks
-     Platform info:
-     Darwin 15.6.0 x64
-     Node.JS 6.8.1
-     V8 5.1.281.84
-     Intel(R) Core(TM) i7-4870HQ CPU @ 2.50GHz × 8
+    Platform info:
+    Darwin 15.6.0 x64
+    Node.JS 6.8.1
+    V8 5.1.281.84
+    Intel(R) Core(TM) i7-4870HQ CPU @ 2.50GHz × 8
 
 
 
-     FLATTEN: deeply nested with array x 958,557 ops/sec ±1.34% (86 runs sampled)
-     GET: single depth x 9,798,598 ops/sec ±1.09% (87 runs sampled)
-     GET: deeply nested with array x 5,905,806 ops/sec ±0.94% (88 runs sampled)
-     SET: single depth x 10,706,795 ops/sec ±1.88% (83 runs sampled)
-     SET: deeply nested with array x 6,875,715 ops/sec ±4.11% (82 runs sampled)
+    DIFF: deeply nested object x 1,305,372 ops/sec ±1.73% (89 runs sampled)
+    FLATTEN: deeply nested with array x 1,574,470 ops/sec ±1.57% (87 runs sampled)
+    GET: single depth x 10,753,107 ops/sec ±0.90% (92 runs sampled)
+    GET: deeply nested with array x 6,302,773 ops/sec ±1.72% (89 runs sampled)
+    SET: single depth x 7,480,487 ops/sec ±1.91% (84 runs sampled)
+    SET: deeply nested with array x 6,010,088 ops/sec ±0.91% (93 runs sampled)
 

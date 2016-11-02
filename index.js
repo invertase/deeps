@@ -19,13 +19,9 @@ function isObject(item) {
  */
 function diff(objectA, objectB) {
   if (!isObject(objectA) || !isObject(objectB)) return null;
-  var i = 0;
   var output = null;
-  var keys = Object.keys(objectB);
-  var len = keys.length;
 
-  while (i < len) {
-    var key = keys[i++];
+  for (var key in objectB) {
     var aProp = objectA[key];
     var bProp = objectB[key];
 
@@ -49,17 +45,11 @@ function diff(objectA, objectB) {
  * @param object
  * @param stack
  * @param parent
- * @param intermediate
  * @returns {*}
  * @private
  */
 function _flattenChild(object, stack, parent) {
-  var i = 0;
-  var keys = Object.keys(object);
-  var len = keys.length;
-
-  while (i < len) {
-    var key = keys[i++];
+  for (var key in object) {
     if (isObject(object[key])) {
       var p = parent + '.' + key;
       _flattenChild(object[key], stack, p);
@@ -68,7 +58,6 @@ function _flattenChild(object, stack, parent) {
       stack[parent + '.' + escaped] = object[key];
     }
   }
-
   return stack;
 }
 
@@ -80,13 +69,9 @@ function _flattenChild(object, stack, parent) {
 function flatten(object) {
   if (!isObject(object)) return null;
 
-  var i = 0;
   var stack = {};
-  var keys = Object.keys(object);
-  var len = keys.length;
 
-  while (i < len) {
-    var key = keys[i++];
+  for (var key in object) {
     var escaped = key.indexOf('.') > -1 ? key.replace(/\./g, '\\\.') : key;
     if (isObject(object[key])) {
       _flattenChild(object[key], stack, escaped);
@@ -146,7 +131,27 @@ function set(object, path, value, initPaths) {
   if (isObject(object)) object[keys[i]] = value;
   else return false;
   return true;
+}
 
+
+/**
+ *
+ * @param target
+ * @param source
+ * @returns {*}
+ */
+function merge(target, source) {
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} });
+        merge(target[key], source[key]);
+      } else {
+        Object.assign(target, { [key]: source[key] });
+      }
+    }
+  }
+  return target;
 }
 
 module.exports.get = get;
