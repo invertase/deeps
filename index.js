@@ -157,5 +157,6 @@ function merge(target, source) {
 module.exports.get = get;
 module.exports.set = set;
 module.exports.diff = diff;
+module.exports.merge = merge;
 module.exports.flatten = flatten;
 module.exports.isObject = isObject;
