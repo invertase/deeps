@@ -43,19 +43,91 @@ function diff(objectA, objectB) {
 /**
  *
  * @param object
- * @param stack
+ * @param keys
  * @param parent
+ * @param joiner
  * @returns {*}
  * @private
  */
-function _flattenChild(object, stack, parent) {
+function _valuesChild(object, keys, parent, joiner) {
+  for (var key in object) {
+    if (isObject(object[key])) _valuesChild(object[key], keys, parent + joiner + key, joiner);
+    else keys.push(object[key]);
+  }
+}
+
+/**
+ * Same as Object.keys except deeply
+ * @param object
+ * @param joiner
+ * @returns {{}}
+ */
+function values(object, joiner) {
+  if (!isObject(object)) return null;
+  var values = [];
+  var _joiner = joiner || '.';
+
+  for (var key in object) {
+    if (isObject(object[key])) _valuesChild(object[key], values, key, _joiner);
+    else values.push(object[key]);
+  }
+
+  return values;
+}
+
+
+/**
+ *
+ * @param object
+ * @param keys
+ * @param parent
+ * @param joiner
+ * @returns {*}
+ * @private
+ */
+function _keysChild(object, keys, parent, joiner) {
+  for (var key in object) {
+    if (isObject(object[key])) _keysChild(object[key], keys, parent + joiner + key, joiner);
+    else keys.push(parent + joiner + key);
+  }
+}
+
+/**
+ * Same as Object.keys except deeply
+ * @param object
+ * @param joiner
+ * @returns {{}}
+ */
+function keys(object, joiner) {
+  if (!isObject(object)) return null;
+  var keys = [];
+  var _joiner = joiner || '.';
+
+  for (var key in object) {
+    if (isObject(object[key])) _keysChild(object[key], keys, key, _joiner);
+    else keys.push(key);
+  }
+
+  return keys;
+}
+
+
+/**
+ *
+ * @param object
+ * @param stack
+ * @param parent
+ * @param joiner
+ * @returns {*}
+ * @private
+ */
+function _flattenChild(object, stack, parent, joiner) {
   for (var key in object) {
     if (isObject(object[key])) {
-      var p = parent + '.' + key;
-      _flattenChild(object[key], stack, p);
+      var p = parent + joiner + key;
+      _flattenChild(object[key], stack, p, joiner);
     } else {
-      var escaped = key.indexOf('.') > -1 ? key.replace(/\./g, '\\\.') : key;
-      stack[parent + '.' + escaped] = object[key];
+      stack[parent + joiner + key] = object[key];
     }
   }
   return stack;
@@ -64,20 +136,41 @@ function _flattenChild(object, stack, parent) {
 /**
  * Deeply flattens an object into a 1 level deep object.
  * @param object
+ * @param joiner
  * @returns {{}}
  */
-function flatten(object) {
+function flatten(object, joiner) {
+  var _joiner = joiner || '.';
   if (!isObject(object)) return null;
 
   var stack = {};
 
   for (var key in object) {
-    var escaped = key.indexOf('.') > -1 ? key.replace(/\./g, '\\\.') : key;
     if (isObject(object[key])) {
-      _flattenChild(object[key], stack, escaped);
+      _flattenChild(object[key], stack, key, _joiner);
     } else {
-      stack[escaped] = object[key];
+      stack[key] = object[key];
     }
+  }
+
+  return stack;
+}
+
+/**
+ * Unflattens an previously flattened object  back into deep nested object.
+ * @param object
+ * @param joiner
+ * @returns {{}}
+ */
+function unflatten(object, joiner) {
+  var _joiner = joiner || '.';
+  if (!isObject(object)) return null;
+
+  var stack = {};
+
+  for (var key in object) {
+    if (key.indexOf(_joiner) === -1) stack[key] = object[key];
+    else set(stack, key, object[key], true, _joiner);
   }
 
   return stack;
@@ -88,10 +181,11 @@ function flatten(object) {
  * Deep get a value from an object.
  * @param object
  * @param path
+ * @param joiner
  * @returns {*}
  */
-function get(object, path) {
-  var keys = path.split('.');
+function get(object, path, joiner) {
+  var keys = path.split(joiner || '.');
 
   var i = 0;
   var tmp = object;
@@ -114,10 +208,11 @@ function get(object, path) {
  * @param path
  * @param value
  * @param initPaths
+ * @param joiner
  */
-function set(object, path, value, initPaths) {
+function set(object, path, value, initPaths, joiner) {
   if (!isObject(object)) return false;
-  var keys = path.split('.');
+  var keys = path.split(joiner || '.');
 
   var i = 0;
   var len = keys.length - 1;
@@ -133,6 +228,19 @@ function set(object, path, value, initPaths) {
   return true;
 }
 
+/**
+ *
+ * @param object
+ * @param source
+ * @param joiner
+ */
+function mapToProps(object, source, joiner) {
+  if (!isObject(object)) return object;
+  for (var key in object) {
+    object[key] = get(source, object[key], joiner)
+  }
+  return object;
+}
 
 /**
  *
@@ -142,7 +250,7 @@ function set(object, path, value, initPaths) {
  */
 function merge(target, source) {
   if (isObject(target) && isObject(source)) {
-    for (const key in source) {
+    for (var key in source) {
       if (isObject(source[key])) {
         if (!target[key]) Object.assign(target, { [key]: {} });
         merge(target[key], source[key]);
@@ -158,5 +266,32 @@ module.exports.get = get;
 module.exports.set = set;
 module.exports.diff = diff;
 module.exports.merge = merge;
+module.exports.keys = keys;
+module.exports.values = values;
 module.exports.flatten = flatten;
+module.exports.collapse = flatten;
+module.exports.unflatten = unflatten;
+module.exports.expand = unflatten;
 module.exports.isObject = isObject;
+
+// todo tests for keys, values, unflatten, mapToProps
+//
+// const test = unflatten({
+//   'a.b.c.d.e.f.g': 1,
+//   'a.b.f': 2,
+//   'a.k.j': 4,
+// });
+//
+// console.dir(test);
+//
+// const mappy = mapToProps({
+//   1: 'a.b.c.d.e.f.g',
+//   2: 'a.b.f',
+//   4: 'a.k.j',
+//   5: 'a.k.j.k.l.m.n.o',
+// }, test);
+//
+// console.dir(mappy);
+
+
+

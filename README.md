@@ -10,9 +10,14 @@ High performance utilities for dealing with nested objects.
 
 #### get
 #### set
+#### keys
+#### values
 #### diff
 #### flatten
+#### unflatten
 #### merge
+#### mapToProps
+
 
 ### Why?
 
