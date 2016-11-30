@@ -245,7 +245,8 @@ function mapToProps(object, source, noUndef, joiner) {
   for (var key in _object) {
     var value = _source[_object[key]];
     if (_noUndef && value !== undefined) _object[key] = value;
-    else if (!_noUndef) _object[key] = value;
+    else if (_noUndef) delete _object[key];
+    else _object[key] = value;
   }
 
   return unflatten(_object, _joiner);
@@ -300,11 +301,9 @@ module.exports.mapToProps = mapToProps;
 //   4: 'a.k.j',
 //   5: 'a.k.j.k.l.m.n.o',
 //   6: {
-//     7: 'a.b.f'
+//     7: 'a.b.f',
+//     8: 'a.b.f.b.c.d'
 //   }
 // }, test);
 //
 // console.dir(mappy);
-
-
-
