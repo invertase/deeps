@@ -232,14 +232,23 @@ function set(object, path, value, initPaths, joiner) {
  *
  * @param object
  * @param source
+ * @param noUndef
  * @param joiner
  */
-function mapToProps(object, source, joiner) {
+function mapToProps(object, source, noUndef, joiner) {
   if (!isObject(object)) return object;
-  for (var key in object) {
-    object[key] = get(source, object[key], joiner)
+  var _joiner = typeof noUndef === 'string' ? noUndef : joiner;
+  var _noUndef = typeof noUndef === 'boolean' ? noUndef : true;
+  var _object = flatten(object, _joiner);
+  var _source = flatten(source, _joiner);
+
+  for (var key in _object) {
+    var value = _source[_object[key]];
+    if (_noUndef && value !== undefined) _object[key] = value;
+    else if (!_noUndef) _object[key] = value;
   }
-  return object;
+
+  return unflatten(_object, _joiner);
 }
 
 /**
@@ -265,17 +274,18 @@ function merge(target, source) {
 module.exports.get = get;
 module.exports.set = set;
 module.exports.diff = diff;
-module.exports.merge = merge;
 module.exports.keys = keys;
+module.exports.merge = merge;
 module.exports.values = values;
 module.exports.flatten = flatten;
-module.exports.collapse = flatten;
-module.exports.unflatten = unflatten;
 module.exports.expand = unflatten;
+module.exports.collapse = flatten;
 module.exports.isObject = isObject;
+module.exports.unflatten = unflatten;
+module.exports.mapToProps = mapToProps;
 
-// todo tests for keys, values, unflatten, mapToProps
-//
+// // todo tests for keys, values, unflatten, mapToProps
+// //
 // const test = unflatten({
 //   'a.b.c.d.e.f.g': 1,
 //   'a.b.f': 2,
@@ -289,6 +299,9 @@ module.exports.isObject = isObject;
 //   2: 'a.b.f',
 //   4: 'a.k.j',
 //   5: 'a.k.j.k.l.m.n.o',
+//   6: {
+//     7: 'a.b.f'
+//   }
 // }, test);
 //
 // console.dir(mappy);
