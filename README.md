@@ -11,11 +11,11 @@ High performance utilities for dealing with nested objects.
 #### get
 #### set
 #### keys
-#### values
 #### diff
+#### merge
+#### values
 #### flatten
 #### unflatten
-#### merge
 #### mapToProps
 
 
