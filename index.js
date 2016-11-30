@@ -237,16 +237,48 @@ function set(object, path, value, initPaths, joiner) {
  */
 function mapToProps(object, source, noUndef, joiner) {
   if (!isObject(object)) return object;
+  var key;
   var _joiner = typeof noUndef === 'string' ? noUndef : joiner;
   var _noUndef = typeof noUndef === 'boolean' ? noUndef : true;
   var _object = flatten(object, _joiner);
   var _source = flatten(source, _joiner);
+  var checkForConditions = true;
 
-  for (var key in _object) {
-    var value = _source[_object[key]];
-    if (_noUndef && value !== undefined) _object[key] = value;
+  while (checkForConditions) {
+    var foundCondition = false;
+
+    for (key in _object) {
+      var condition = null;
+      var mapValue = _object[key];
+
+      // todo support multiple conditions later on
+      if (mapValue instanceof Array) {
+        condition = mapValue[0].split('=');
+        mapValue = mapValue[1];
+      }
+
+      if (condition) {
+        var conditionTarget = condition[0];
+        var conditionValue = condition[1];
+
+        if (conditionValue) { // value compare condition
+          if (hasOwnProperty.call(_source, conditionTarget) && _source[conditionTarget].toString() === conditionValue) _object[key] = mapValue;
+          else delete _object[key];
+        } else { // hasOwnProp condition
+          if (hasOwnProperty.call(_source, conditionTarget)) _object[key] = mapValue;
+          else delete _object[key];
+        }
+      }
+    }
+    _object = flatten(_object, _joiner);
+    checkForConditions = foundCondition;
+  }
+
+  for (key in _object) {
+    var sourceValue = _source[_object[key]];
+    if (_noUndef && sourceValue !== undefined) _object[key] = sourceValue;
     else if (_noUndef) delete _object[key];
-    else _object[key] = value;
+    else _object[key] = sourceValue;
   }
 
   return unflatten(_object, _joiner);
@@ -285,11 +317,11 @@ module.exports.isObject = isObject;
 module.exports.unflatten = unflatten;
 module.exports.mapToProps = mapToProps;
 
-// // todo tests for keys, values, unflatten, mapToProps
-// //
+// todo tests for keys, values, unflatten, mapToProps
+//
 // const test = unflatten({
 //   'a.b.c.d.e.f.g': 1,
-//   'a.b.f': 2,
+//   'a.b.f': true,
 //   'a.k.j': 4,
 // });
 //
@@ -303,7 +335,15 @@ module.exports.mapToProps = mapToProps;
 //   6: {
 //     7: 'a.b.f',
 //     8: 'a.b.f.b.c.d'
-//   }
+//   },
+//   '99': {
+//     7: 'a.b.f',
+//     8: ['a.b.f=true','a.b.f.b.c.d']
+//   },
+//   1337: ['a.k.j=5',{
+//     7: 'a.b.f',
+//     8: 'a.b.f.b.c.d'
+//   }]
 // }, test);
 //
 // console.dir(mappy);
