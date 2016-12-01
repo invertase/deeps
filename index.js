@@ -260,10 +260,17 @@ function mapToProps(object, source, noUndef, joiner) {
       if (condition) {
         var conditionTarget = condition[0];
         var conditionValue = condition[1];
+        var notEqual = conditionTarget.indexOf('!') !== -1;
+        if (notEqual) conditionTarget = conditionTarget.replace('!');
 
         if (conditionValue) { // value compare condition
-          if (hasOwnProperty.call(_source, conditionTarget) && _source[conditionTarget].toString() === conditionValue) _object[key] = mapValue;
-          else delete _object[key];
+          if (notEqual) {
+            if (hasOwnProperty.call(_source, conditionTarget) && _source[conditionTarget].toString() !== conditionValue) _object[key] = mapValue;
+            else delete _object[key];
+          } else {
+            if (hasOwnProperty.call(_source, conditionTarget) && _source[conditionTarget].toString() === conditionValue) _object[key] = mapValue;
+            else delete _object[key];
+          }
         } else { // hasOwnProp condition
           if (hasOwnProperty.call(_source, conditionTarget)) _object[key] = mapValue;
           else delete _object[key];
