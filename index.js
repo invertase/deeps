@@ -261,7 +261,7 @@ function mapToProps(object, source, noUndef, joiner) {
         var conditionTarget = condition[0];
         var conditionValue = condition[1];
         var notEqual = conditionTarget.indexOf('!') !== -1;
-        if (notEqual) conditionTarget = conditionTarget.replace('!');
+        if (notEqual) conditionTarget = conditionTarget.replace('!', '');
 
         if (conditionValue) { // value compare condition
           if (notEqual) {
@@ -328,8 +328,9 @@ module.exports.mapToProps = mapToProps;
 //
 // const test = unflatten({
 //   'a.b.c.d.e.f.g': 1,
+//   'a.b.c.d.ff': 2,
 //   'a.b.f': true,
-//   'a.k.j': 4,
+//   'a.k.j': 5,
 // });
 //
 // console.dir(test);
@@ -345,9 +346,9 @@ module.exports.mapToProps = mapToProps;
 //   },
 //   '99': {
 //     7: 'a.b.f',
-//     8: ['a.b.f=true','a.b.f.b.c.d']
+//     8: ['a.b.f=true','a.b.c.d.ff']
 //   },
-//   1337: ['a.k.j=5',{
+//   1337: ['a.k.j=4',{
 //     7: 'a.b.f',
 //     8: 'a.b.f.b.c.d'
 //   }]
