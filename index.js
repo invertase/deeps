@@ -295,6 +295,8 @@ function _objectCondition(_transformers, config, mapKey, _object, flattened, ori
         _functionCondition(config.condition, mapKey, _object, flattened, original, key);
         break;
     }
+  } else {
+    _object[key] = mapKey;
   }
 
   if (config.transformer && typeof config.transformer === 'function') {
@@ -394,18 +396,21 @@ module.exports.isObject = isObject;
 module.exports.unflatten = unflatten;
 module.exports.mapToProps = mapToProps;
 
-// todo tests for keys, values, unflatten, mapToProps
-//
+// // todo tests for keys, values, unflatten, mapToProps
 // const test = unflatten({
 //   'a.b.c.d.e.f.g': 1,
 //   'a.b.c.d.ff': 2,
 //   'a.b.f': true,
 //   'a.k.j': 5,
+//   abcc: {
+//     foo: 'bar'
+//   }
 // });
 //
 // console.dir(test);
 //
 // const mappy = mapToProps({
+//   f: 'abcc',
 //   1: 'a.b.c.d.e.f.g',
 //   2: 'a.b.f',
 //   4: 'a.k.j',
@@ -413,7 +418,7 @@ module.exports.mapToProps = mapToProps;
 //   6: {
 //     7: [{
 //       condition: (original, flattened, targetKey, mapKey) => 'a.b.c.d.ff',
-//       transformer: (original, mapKey) => val * 40000,
+//       transformer: (original, mapKey) => original * 40000,
 //     },
 //       'a.k.j'
 //     ],
