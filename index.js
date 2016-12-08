@@ -230,6 +230,79 @@ function set(object, path, value, initPaths, joiner) {
 
 /**
  *
+ * @param _condition
+ * @param mapKey
+ * @param _object
+ * @param _source
+ * @param key
+ * @private
+ */
+function _stringCondition(_condition, mapKey, _object, _source, key) {
+  var condition = _condition.split('=');
+  var conditionTarget = condition[0];
+  var conditionValue = condition[1];
+  var notEqual = conditionTarget.indexOf('!') !== -1;
+  if (notEqual) conditionTarget = conditionTarget.replace('!', '');
+
+  if (conditionValue) { // value compare condition
+    if (notEqual) {
+      if (hasOwnProperty.call(_source, conditionTarget) && _source[conditionTarget].toString() !== conditionValue) _object[key] = mapKey;
+      else delete _object[key];
+    } else {
+      if (hasOwnProperty.call(_source, conditionTarget) && _source[conditionTarget].toString() === conditionValue) _object[key] = mapKey;
+      else delete _object[key];
+    }
+  } else { // hasOwnProp condition
+    if (hasOwnProperty.call(_source, conditionTarget)) _object[key] = mapKey;
+    else delete _object[key];
+  }
+}
+
+/**
+ *
+ * @param func
+ * @param mapKey
+ * @param _object
+ * @param flattened
+ * @param original
+ * @param key
+ * @private
+ */
+function _functionCondition(func, mapKey, _object, flattened, original, key) {
+  const result = func(original, flattened, mapKey, key);
+  if (result) _object[key] = result === true ? mapKey : result;
+  else delete _object[key];
+}
+
+/**
+ *
+ * @param _transformers
+ * @param config
+ * @param mapKey
+ * @param _object
+ * @param flattened
+ * @param original
+ * @param key
+ * @private
+ */
+function _objectCondition(_transformers, config, mapKey, _object, flattened, original, key) {
+  if (config.condition) {
+    switch (typeof config.condition) {
+      case 'string':
+        _stringCondition(config.condition, mapKey, _object, flattened, key);
+        break;
+      case 'function':
+        _functionCondition(config.condition, mapKey, _object, flattened, original, key);
+        break;
+    }
+  }
+
+  if (config.transformer && typeof config.transformer === 'function') {
+    _transformers[key] = config.transformer;
+  }
+}
+/**
+ *
  * @param object
  * @param source
  * @param noUndef
@@ -242,39 +315,29 @@ function mapToProps(object, source, noUndef, joiner) {
   var _noUndef = typeof noUndef === 'boolean' ? noUndef : true;
   var _object = flatten(object, _joiner);
   var _source = flatten(source, _joiner);
+  var _transformers = {};
   var checkForConditions = true;
 
   while (checkForConditions) {
     var foundCondition = false;
 
     for (key in _object) {
-      var condition = null;
       var mapValue = _object[key];
 
       // todo support multiple conditions later on
       if (mapValue instanceof Array) {
-        condition = mapValue[0].split('=');
-        mapValue = mapValue[1];
-      }
-
-      if (condition) {
-        var conditionTarget = condition[0];
-        var conditionValue = condition[1];
-        var notEqual = conditionTarget.indexOf('!') !== -1;
-        if (notEqual) conditionTarget = conditionTarget.replace('!', '');
-
-        if (conditionValue) { // value compare condition
-          if (notEqual) {
-            if (hasOwnProperty.call(_source, conditionTarget) && _source[conditionTarget].toString() !== conditionValue) _object[key] = mapValue;
-            else delete _object[key];
-          } else {
-            if (hasOwnProperty.call(_source, conditionTarget) && _source[conditionTarget].toString() === conditionValue) _object[key] = mapValue;
-            else delete _object[key];
-          }
-        } else { // hasOwnProp condition
-          if (hasOwnProperty.call(_source, conditionTarget)) _object[key] = mapValue;
-          else delete _object[key];
+        switch (typeof mapValue[0]) {
+          case 'string':
+            _stringCondition(mapValue[0], mapValue[1], _object, _source, key);
+            break;
+          case 'function':
+            _functionCondition(mapValue[0], mapValue[1], _object, _source, source, key);
+            break;
+          case 'object':
+            _objectCondition(_transformers, mapValue[0], mapValue[1], _object, _source, source, key);
+            break;
         }
+
       }
     }
     _object = flatten(_object, _joiner);
@@ -283,6 +346,7 @@ function mapToProps(object, source, noUndef, joiner) {
 
   for (key in _object) {
     var sourceValue = _source[_object[key]];
+    if (_transformers[key]) sourceValue = _transformers[key](sourceValue, key);
     if (_noUndef && sourceValue !== undefined) _object[key] = sourceValue;
     else if (_noUndef) delete _object[key];
     else _object[key] = sourceValue;
@@ -341,14 +405,19 @@ module.exports.mapToProps = mapToProps;
 //   4: 'a.k.j',
 //   5: 'a.k.j.k.l.m.n.o',
 //   6: {
-//     7: 'a.b.f',
+//     7: [{
+//       condition: (original, flattened, targetKey, mapKey) => 'a.b.c.d.ff',
+//       transformer: (original, mapKey) => val * 40000,
+//     },
+//       'a.k.j'
+//     ],
 //     8: 'a.b.f.b.c.d'
 //   },
 //   '99': {
-//     7: 'a.b.f',
-//     8: ['a.b.f=true','a.b.c.d.ff']
+//     7: [(src) => 'a.b.c.d.ff', 'a.b.f'],
+//     8: ['a.b.f=true', 'a.b.c.d.ff']
 //   },
-//   1337: ['a.k.j=4',{
+//   1337: ['a.k.j=4', {
 //     7: 'a.b.f',
 //     8: 'a.b.f.b.c.d'
 //   }]
