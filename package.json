@@ -1,6 +1,6 @@
 {
   "name": "deeps",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Highly performant utilities to manage deeply nested objects. get, set, merge, flatten, diff etc.",
   "main": "index.js",
   "engines": {
