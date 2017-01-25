@@ -354,7 +354,7 @@ function mapToProps(object, source, noUndef, joiner) {
       sourceValue = get(source, targetKey, _joiner);
     }
 
-    if (_transformers[key]) sourceValue = _transformers[key](sourceValue, key);
+    if (_transformers[key]) sourceValue = _transformers[key](sourceValue, key, _source);
     if (_noUndef && sourceValue !== undefined) _object[key] = sourceValue;
     else if (_noUndef) delete _object[key];
     else _object[key] = sourceValue;
