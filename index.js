@@ -373,9 +373,7 @@ function merge(target, source) {
   if (isObject(target) && isObject(source)) {
     for (var key in source) {
       if (isObject(source[key])) {
-        if (!target[key]) {
-          target[key] = {};
-        }
+        if (!target[key]) target[key] = {};
         merge(target[key], source[key]);
       } else {
         const additions = {};
