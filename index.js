@@ -373,10 +373,14 @@ function merge(target, source) {
   if (isObject(target) && isObject(source)) {
     for (var key in source) {
       if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, { [key]: {} });
+        if (!target[key]) {
+          target[key] = {};
+        }
         merge(target[key], source[key]);
       } else {
-        Object.assign(target, { [key]: source[key] });
+        const additions = {};
+        additions[key] = source[key];
+        Object.assign(target, additions);
       }
     }
   }
