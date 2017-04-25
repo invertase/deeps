@@ -8,16 +8,169 @@
 
 High performance utilities for dealing with nested objects.
 
-#### get
-#### set
-#### keys
-#### diff
-#### merge
-#### values
-#### flatten
+#### get (object, path, joiner)
+
+Deep gets an object property value.
+
+```js
+const obj = {
+  some: {
+    deep: {
+      prop: 'foobar',
+    },
+  },
+};
+
+const prop = deeps.get(obj, 'some.deep.prop'); // foobar
+const prop = deeps.get(obj, 'some.deep.key'); // undefined
+```
+
+#### set (object, path, value, initPaths, joiner)
+
+Deep sets an object property value.
+
+```js
+const obj = {
+  some: {
+    deep: {
+      prop: 'foobar',
+    },
+  },
+};
+
+deeps.set(obj, 'some.deep.prop', 'barbaz');
+```
+
+#### keys (object, joiner)
+
+Same as Object.keys except deeply.
+
+```js
+const obj = {
+  some: {
+    deep: {
+      prop: 'foobar',
+      key: 'barbaz',
+    },
+  },
+};
+
+const keys = deeps.keys(object); // ['some.deep.prop', 'some.deep.key']
+```
+
+#### diff (objectA, objectB)
+
+Returns an object of differences between to objects.
+
+```js
+const obj1 = {
+  a: 1,
+  b: 3,
+};
+
+const obj2 = {
+  a: 2,
+  b: 3,
+};
+
+const diff = deeps.keys(obj1, obj2); // { a: 2 }
+```
+
+#### merge (target, source)
+
+Same as Object.assign but deeply.
+
+```js
+const target = {
+  a: 1,
+  b: {
+    c: 2,
+  },
+};
+const source = {
+  a: 1,
+  b: {
+    c: 2,
+    d: 3,
+  },
+};
+
+deeps.merge(target, source);
+// target = { a: 1, b: { c: 2, d: 3 } }
+```
+
+#### values (object, joiner)
+
+```js
+const object = {
+  a: 1,
+  b: {
+    c: 2,
+    d: 3,
+  },
+};
+
+deeps.values(object); // [1, 2, 3]
+```
+
+#### flatten (object, joiner)
+
+Flattens an object to an object of key paths with the values
+
+```js
+const object = {
+  a: 1,
+  b: {
+    c: 2,
+    d: {
+      e: 3,
+      f: 4
+    },
+  },
+};
+
+const flatten = deeps.flatten(object);
+
+// flatten:
+{
+  'a': 1,
+  'b.c': 2,
+  'b.d.e': 3,
+  'b.d.f': 4,
+}
+
+```
+
 #### unflatten
+
+Unflattens an object of key paths (reverse flatten)
+
+```js
+const object = {
+  'a': 1,
+  'b.c': 2,
+  'b.d.e': 3,
+  'b.d.f': 4,
+}
+
+const unflatten = deeps.unflatten(object);
+
+// unflatten:
+{
+  a: 1,
+  b: {
+    c: 2,
+    d: {
+      e: 3,
+      f: 4,
+    },
+  },
+};
+```
+
 #### mapToProps
 
+TODO
 
 ### Why?
 
