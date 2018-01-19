@@ -223,7 +223,7 @@ function set(object, path, value, initPaths, joiner) {
     object = object[key];
   }
 
-  if (isObject(object)) object[keys[i]] = value;
+  if (isObject(object) || (Array.isArray(object) && !Number.isNaN(keys[i]))) object[keys[i]] = value;
   else return false;
   return true;
 }
