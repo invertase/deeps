@@ -4,7 +4,8 @@
 [![build](https://travis-ci.org/Salakar/deeps.svg)](https://travis-ci.org/Salakar/deeps)
 [![npm version](https://img.shields.io/npm/v/deeps.svg)](https://www.npmjs.com/package/deeps)
 [![License](https://img.shields.io/npm/l/deeps.svg)](/LICENSE)
-[![Donate](https://img.shields.io/badge/Donate-Patreon-green.svg)](https://www.patreon.com/invertase)
+<a href="https://twitter.com/mikediarmid"><img src="https://img.shields.io/twitter/follow/mikediarmid.svg?style=social&label=Follow" alt="Follow on Twitter"></a>
+
 
 
 High performance utilities for dealing with nested objects.
