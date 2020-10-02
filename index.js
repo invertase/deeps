@@ -211,6 +211,9 @@ function get(object, path, joiner) {
  * @param joiner
  */
 function set(object, path, value, initPaths, joiner) {
+  if (path.includes('__proto__') || path.includes('prototype') || path.includes('constructor')){
+    return false
+  }
   if (!isObject(object)) return false;
   var keys = path.split(joiner || '.');
 
