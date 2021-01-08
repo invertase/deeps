@@ -219,7 +219,7 @@ function set(object, path, value, initPaths, joiner) {
 
   while (i < len) {
     var key = keys[i++];
-    if (initPaths && !hasOwnProperty.call(object, key)) object[key] = {};
+    if (initPaths && !hasOwnProperty.call(object, key) || isPrototypePolluted(key)) object[key] = {};
     object = object[key];
   }
 
@@ -383,6 +383,15 @@ function merge(target, source) {
     }
   }
   return target;
+}
+
+/**
+ * 
+ * @param key
+ * @returns {boolean}
+ */
+function isPrototypePolluted(key) {
+  return ['__proto__', 'constructor', 'prototype'].includes(key)
 }
 
 module.exports.get = get;
