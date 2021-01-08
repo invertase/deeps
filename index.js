@@ -391,7 +391,7 @@ function merge(target, source) {
  * @returns {boolean}
  */
 function isPrototypePolluted(key) {
-  return ['__proto__', 'constructor', 'prototype'].includes(key)
+  return ['__proto__', 'constructor', 'prototype'].includes(key);
 }
 
 module.exports.get = get;
